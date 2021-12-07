@@ -1007,6 +1007,14 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
+    // cameras.add(CameraDescription(
+    //     name: '2',
+    //     lensDirection: CameraLensDirection.back,
+    //     sensorOrientation: 90));
+    // cameras.add(CameraDescription(
+    //     name: '3',
+    //     lensDirection: CameraLensDirection.back,
+    //     sensorOrientation: 90));
   } on CameraException catch (e) {
     logError(e.code, e.description);
   }
