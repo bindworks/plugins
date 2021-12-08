@@ -99,22 +99,16 @@ public final class CameraUtils {
   public static List<Map<String, Object>> getAvailableCameras(Activity activity)
       throws CameraAccessException {
     CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
-    List<String> cameraIds = Arrays.asList(cameraManager.getCameraIdList());
     List<Map<String, Object>> cameras = new ArrayList<>();
-    for (String cameraId : cameraIds) {
 
-      CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        Set<String> subCameraIds = characteristics.getPhysicalCameraIds();
-        for (String subCameraId : subCameraIds) {
-          if(cameraIds.contains(subCameraId)) continue;
-          CameraCharacteristics subCharacteristics = cameraManager.getCameraCharacteristics(subCameraId);
-          cameras.add(serializeCameraCharacteristics(subCameraId,subCharacteristics));
-        }
+    for (int i = 0; i < 10; i++) {
+      try {
+        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(Integer.toString(i));
+        cameras.add(serializeCameraCharacteristics(Integer.toString(i),characteristics));
       }
-
-      cameras.add(serializeCameraCharacteristics(cameraId,characteristics));
+      catch(Exception e) {
+        continue;
+      }
     }
     return cameras;
   }

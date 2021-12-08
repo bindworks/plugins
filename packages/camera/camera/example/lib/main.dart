@@ -599,7 +599,10 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       }
     }
 
-    return Row(children: toggles);
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(children: toggles),
+    );
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
@@ -1006,15 +1009,9 @@ Future<void> main() async {
   // Fetch the available cameras before initializing the app.
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    cameras = await availableCameras();
-    // cameras.add(CameraDescription(
-    //     name: '2',
-    //     lensDirection: CameraLensDirection.back,
-    //     sensorOrientation: 90));
-    // cameras.add(CameraDescription(
-    //     name: '3',
-    //     lensDirection: CameraLensDirection.back,
-    //     sensorOrientation: 90));
+    cameras = (await availableCameras())
+        .where((e) => e.lensDirection == CameraLensDirection.back)
+        .toList();
   } on CameraException catch (e) {
     logError(e.code, e.description);
   }
