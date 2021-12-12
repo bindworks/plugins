@@ -130,41 +130,44 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       appBar: AppBar(
         title: const Text('Camera example'),
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: _cameraPreviewWidget(),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Center(
+                    child: _cameraPreviewWidget(),
+                  ),
                 ),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color:
-                      controller != null && controller!.value.isRecordingVideo
-                          ? Colors.redAccent
-                          : Colors.grey,
-                  width: 3.0,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color:
+                        controller != null && controller!.value.isRecordingVideo
+                            ? Colors.redAccent
+                            : Colors.grey,
+                    width: 3.0,
+                  ),
                 ),
               ),
             ),
-          ),
-          _captureControlRowWidget(),
-          _modeControlRowWidget(),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                _cameraTogglesRowWidget(),
-                _thumbnailWidget(),
-              ],
+            _captureControlRowWidget(),
+            _modeControlRowWidget(),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(5.0),
+              height: 50,
+              child: ListView(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                children: _cameraTogglesRowWidget(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -222,42 +225,39 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   Widget _thumbnailWidget() {
     final VideoPlayerController? localVideoController = videoController;
 
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            localVideoController == null && imageFile == null
-                ? Container()
-                : SizedBox(
-                    child: (localVideoController == null)
-                        ? (
-                            // The captured image on the web contains a network-accessible URL
-                            // pointing to a location within the browser. It may be displayed
-                            // either with Image.network or Image.memory after loading the image
-                            // bytes to memory.
-                            kIsWeb
-                                ? Image.network(imageFile!.path)
-                                : Image.file(File(imageFile!.path)))
-                        : Container(
-                            child: Center(
-                              child: AspectRatio(
-                                  aspectRatio:
-                                      localVideoController.value.size != null
-                                          ? localVideoController
-                                              .value.aspectRatio
-                                          : 1.0,
-                                  child: VideoPlayer(localVideoController)),
-                            ),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.pink)),
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          localVideoController == null && imageFile == null
+              ? Container()
+              : SizedBox(
+                  child: (localVideoController == null)
+                      ? (
+                          // The captured image on the web contains a network-accessible URL
+                          // pointing to a location within the browser. It may be displayed
+                          // either with Image.network or Image.memory after loading the image
+                          // bytes to memory.
+                          kIsWeb
+                              ? Image.network(imageFile!.path)
+                              : Image.file(File(imageFile!.path)))
+                      : Container(
+                          child: Center(
+                            child: AspectRatio(
+                                aspectRatio:
+                                    localVideoController.value.size != null
+                                        ? localVideoController.value.aspectRatio
+                                        : 1.0,
+                                child: VideoPlayer(localVideoController)),
                           ),
-                    width: 64.0,
-                    height: 64.0,
-                  ),
-          ],
-        ),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.pink)),
+                        ),
+                  width: 64.0,
+                  height: 64.0,
+                ),
+        ],
       ),
     );
   }
@@ -567,7 +567,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   }
 
   /// Display a row of toggle to select the camera (or a message if no camera is available).
-  Widget _cameraTogglesRowWidget() {
+  List<Widget> _cameraTogglesRowWidget() {
     final List<Widget> toggles = <Widget>[];
 
     final onChanged = (CameraDescription? description) {
@@ -579,12 +579,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     };
 
     if (cameras.isEmpty) {
-      return const Text('No camera found');
+      return [Text('No camera found')];
     } else {
       for (CameraDescription cameraDescription in cameras) {
         toggles.add(
           SizedBox(
-            width: 90.0,
+            width: 90,
             child: RadioListTile<CameraDescription>(
               title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
               groupValue: controller?.description,
@@ -599,10 +599,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       }
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(children: toggles),
-    );
+    return toggles;
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
